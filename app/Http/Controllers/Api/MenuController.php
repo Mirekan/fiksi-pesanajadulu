@@ -30,8 +30,7 @@ class MenuController extends Controller
         if ($request->filled('price')) {
             $query->where('price', $request->input('price'));
         }
-
-        $menus = $query->get();
+        $menus = $query->with('restaurant')->get();
         return response()->json($menus);
     }
 
@@ -44,6 +43,7 @@ class MenuController extends Controller
             'name' => 'required|string|max:255',
             'category' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
+            'restaurant_id' => 'required|exists:restaurants,id',
             'price' => 'required|numeric|min:0',
         ]);
 
@@ -69,6 +69,7 @@ class MenuController extends Controller
             'name' => 'required|sometimes|string|max:255',
             'category' => 'required|sometimes|string|max:255',
             'description' => 'nullable|sometimes|string|max:1000',
+            'restaurant_id' => 'required|sometimes|exists:restaurants,id',
             'price' => 'required|sometimes|numeric|min:0',
         ]);
 

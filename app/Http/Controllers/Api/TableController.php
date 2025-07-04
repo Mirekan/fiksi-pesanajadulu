@@ -27,7 +27,7 @@ class TableController extends Controller
             $query->where('capacity', 'like', '%' . $request->input('capacity') . '%');
         }
 
-        $tables = $query->get();
+        $tables = $query->with('restaurant')->get();
         return response()->json($tables);
     }
 
@@ -50,7 +50,7 @@ class TableController extends Controller
      */
     public function show(string $id)
     {
-        $table = Table::findOrFail($id);
+        $table = Table::with('restaurant')->findOrFail($id);
         return response()->json($table);
     }
 

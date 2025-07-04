@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('tables', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('restaurant_id')->constrained()->onDelete('cascade');
             $table->string('status')->default('available'); // 'available', 'reserved', 'occupied'
             $table->integer('capacity')->default(2); // Number of seats at the table
             $table->timestamps();

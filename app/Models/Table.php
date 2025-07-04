@@ -18,10 +18,16 @@ class Table extends Model
     protected $fillable = [
         'capacity',
         'status',
+        'restaurant_id',
     ];
 
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function restaurant()
+    {
+        return $this->belongsTo(Restaurant::class);
     }
 }
