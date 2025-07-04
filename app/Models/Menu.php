@@ -20,10 +20,16 @@ class Menu extends Model
         'description',
         'price',
         'category',
+        'restaurant_id',
     ];
 
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function restaurant()
+    {
+        return $this->belongsTo(Restaurant::class);
     }
 }
