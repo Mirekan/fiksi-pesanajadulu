@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('table_id')->constrained()->onDelete('cascade'); //
             $table->decimal('amount', 16, 2); // Total amount of the order
             $table->string('status')->default('pending'); // 'pending', 'completed', 'cancelled'
+            $table->dateTime('reservation_time');
             $table->timestamps();
         });
     }
