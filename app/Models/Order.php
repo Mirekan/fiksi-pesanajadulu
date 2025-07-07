@@ -19,6 +19,7 @@ class Order extends Model
         'table_id',
         'status',
         'amount',
+        'reservation_time',
     ];
 
     public function user()

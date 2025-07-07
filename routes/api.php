@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\MenuController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\RestaurantController;
 use App\Http\Controllers\Api\TableController;
 use Illuminate\Http\Request;
@@ -21,4 +23,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::apiResource('table', TableController::class);
     Route::apiResource('menu', MenuController::class);
     Route::apiResource('restaurant', RestaurantController::class);
+
+    Route::post('order/store', [OrderController::class, 'store']);
+    Route::post('payment/handle', [PaymentController::class, 'handlePayment']);
 });
