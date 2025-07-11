@@ -18,7 +18,7 @@ Route::post('login', [AuthController::class, 'login'])->name('login');
 Route::post('register', [AuthController::class, 'register'])->name('register');
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
-    Route::get('user', [AuthController::class, 'user'])->name('user');
+    Route::get('user', action: [AuthController::class, 'user'])->name('user');
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
     Route::apiResource('table', TableController::class);
     Route::apiResource('menu', MenuController::class);
