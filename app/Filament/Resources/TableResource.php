@@ -50,7 +50,8 @@ class TableResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('restaurant_id')
+                TextColumn::make('restaurant.name')
+                    ->label('Restaurant')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('status')
