@@ -77,8 +77,8 @@ class RestaurantResource extends Resource
                     ->label('No Telepon Restoran')
                     ->searchable(),
                 TextColumn::make('created_at')
-                    ->label('Dibuat Pada')
-                    ->dateTime()
+                    ->label('Created At')
+                    ->dateTime('d M Y H:i:s')
                     ->searchable(),
             ])
             ->filters([

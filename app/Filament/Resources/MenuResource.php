@@ -81,7 +81,7 @@ class MenuResource extends Resource
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->label('Created At')
-                    ->dateTime()
+                    ->dateTime('d M Y H:i:s')
                     ->searchable(),
             ])
             ->filters([
