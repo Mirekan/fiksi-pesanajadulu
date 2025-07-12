@@ -19,6 +19,7 @@ class Menu extends Model
         'name',
         'description',
         'price',
+        'stock',
         'image',
         'category',
         'restaurant_id',

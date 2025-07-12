@@ -16,20 +16,20 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        // User::factory()->create([
-        //     'name' => 'restaurantA',
-        //     'email' => 'restaurantA@example.com',
-        // ]);
-
         User::factory()->create([
             'name' => 'admin',
             'email' => 'admin@test.com',
         ]);
 
-        // $this->call([
-        //     RestaurantSeeder::class,
-        //     MenuSeeder::class,
-        //     TableSeeder::class,
-        // ]);
+        User::factory()->create([
+            'name' => 'restaurantA',
+            'email' => 'restaurantA@example.com',
+        ]);
+
+        $this->call([
+            RestaurantSeeder::class,
+            MenuSeeder::class,
+            TableSeeder::class,
+        ]);
     }
 }

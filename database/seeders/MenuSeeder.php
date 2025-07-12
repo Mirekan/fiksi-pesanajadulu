@@ -18,9 +18,10 @@ class MenuSeeder extends Seeder
             'name' => 'Nasi Goreng',
             'description' => 'Fried rice with vegetables and chicken',
             'category' => 'Main Course',
+            'stock' => 2,
             'price' => 15000,
             'restaurant_id' => 1, // Assuming restaurant with ID 1 exists
-            'image' => 'nasi_goreng.jpg',
+            'image' => env('APP_URL') . '/storage/menu.png', // Adjust the image URL as needed
         ]);
     }
 }

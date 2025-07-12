@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name'); // Name of the menu item
             $table->foreignId('restaurant_id')->constrained('restaurants')->onDelete('cascade'); // Foreign key to restaurants table
             $table->text('description')->nullable(); // Description of the menu item
+            $table->integer('stock')->default(1); // Stock quantity of the menu item
             $table->string('image')->nullable(); // Image of the menu item
             $table->decimal('price', 16, 2); // Price of the menu
             $table->string('category'); // Category of the menu item (e.g., 'appetizer', 'main course', 'dessert', 'beverage')
