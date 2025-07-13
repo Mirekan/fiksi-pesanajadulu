@@ -30,7 +30,19 @@ class MenuController extends Controller
         if ($request->filled('price')) {
             $query->where('price', $request->input('price'));
         }
-        $menus = $query->with('restaurant')->get();
+
+        // Filter by stock availability
+        if ($request->boolean('available_only')) {
+            $query->available(); // Only show items in stock
+        }
+
+        // Include stock status in response
+        $menus = $query->with('restaurant')->get()->map(function ($menu) {
+            $menu->is_available = $menu->isInStock();
+            $menu->is_out_of_stock = $menu->isOutOfStock();
+            return $menu;
+        });
+
         return response()->json($menus);
     }
 

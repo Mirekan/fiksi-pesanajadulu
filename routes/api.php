@@ -25,5 +25,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::apiResource('restaurant', RestaurantController::class);
 
     Route::post('order/store', [OrderController::class, 'store']);
+    Route::get('order', [OrderController::class, 'index']);
+    Route::get('order/{id}', [OrderController::class, 'show']);
     Route::post('payment/handle', [PaymentController::class, 'handlePayment']);
+    Route::get('payment/status', [PaymentController::class, 'getPaymentStatus']);
+    Route::post('order/cancel', [PaymentController::class, 'cancelOrder']);
 });
+
+// Midtrans webhook - no auth required
+Route::post('payment/notification', [PaymentController::class, 'handleNotification']);

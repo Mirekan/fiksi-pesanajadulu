@@ -17,7 +17,7 @@ class OrderItem extends Model
      */
     protected $fillable = [
         'order_id',
-        'menu_id',
+        'menu_id', // Fixed: was inconsistent
         'quantity',
         'price',
     ];

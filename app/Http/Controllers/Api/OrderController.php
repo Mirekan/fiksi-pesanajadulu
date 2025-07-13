@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Menu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Midtrans\Config;
 use Midtrans\Snap;
 
@@ -23,15 +25,16 @@ class OrderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-        $user = auth('api')->user();
-        $userOrders = Order::where('user_id', $user->id)
-            ->with(['user', 'table', 'orderItems.product'])
+        $userOrders = Order::where('user_id', $request->user()->id)
+            ->with(['user', 'table', 'orderItems.menu', 'payment'])
+            ->orderBy('created_at', 'desc')
             ->get();
 
-        return response()->json($userOrders, 200);
+        return response()->json([
+            'orders' => $userOrders
+        ], 200);
     }
 
     /**
@@ -46,47 +49,78 @@ class OrderController extends Controller
             'amount' => 'required|numeric|min:0',
             'reservation_time' => 'required|date',
             'order_items' => 'required|array',
-        ]);
-
-        $order = Order::create([
-            'user_id' => $request->input('user_id'),
-            'table_id' => $request->input('table_id'),
-            'amount' => $request->input('amount'),
-            'status' => 'pending',
-            'reservation_time' => $request->input('reservation_time'),
+            'order_items.*.menu_id' => 'required|exists:menus,id',
+            'order_items.*.quantity' => 'required|integer|min:1',
+            'order_items.*.price' => 'required|numeric|min:0',
         ]);
 
         $orderItems = $request->input('order_items');
 
+        // Check stock availability for all items before creating order
         foreach ($orderItems as $item) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item['product_id'],
-                'quantity' => $item['quantity'],
-                'price' => $item['price'],
-            ]);
+            $menu = Menu::find($item['menu_id']);
+            if (!$menu->isInStock($item['quantity'])) {
+                return response()->json([
+                    'message' => 'Insufficient stock for menu item: ' . $menu->name,
+                    'available_stock' => $menu->stock,
+                    'requested_quantity' => $item['quantity']
+                ], 400);
+            }
         }
 
-        $items = OrderItem::where('order_id', $order->id)->get();
+        // Calculate total amount (request amount is 50%, so multiply by 2)
+        $totalAmount = $request->input('amount') * 2;
 
-        // Prepare Midtrans transaction data
+        // Create order and reserve stock in a transaction
+        $order = DB::transaction(function () use ($request, $orderItems, $totalAmount) {
+            $order = Order::create([
+                'user_id' => $request->input('user_id'),
+                'table_id' => $request->input('table_id'),
+                'amount' => $totalAmount, // Use calculated total amount
+                'status' => 'pending',
+                'reservation_time' => $request->input('reservation_time'),
+            ]);
+
+            // Create order items and temporarily reserve stock
+            foreach ($orderItems as $item) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'menu_id' => $item['menu_id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                ]);
+
+                // Temporarily reserve stock (decrement) - will be restored if payment fails
+                $menu = Menu::find($item['menu_id']);
+                $menu->decrementStock($item['quantity']);
+            }
+
+            return $order;
+        });
+
+        // Use the amount from request (already 50% from client)
+        $paymentAmount = $request->input('amount');
+
+        // Prepare Midtrans transaction data using the payment amount from request
         $midtransData = [
             'transaction_details' => [
                 'order_id' => $order->id,
-                'gross_amount' => $order->amount,
+                'gross_amount' => $paymentAmount, // Use amount from request (already 50%)
             ],
             'customer_details' => [
                 'first_name' => $request->user()->name,
                 'email' => $request->user()->email,
             ],
-            'item_details' => $items->map(function ($item) {
-                return [
-                    'id' => $item->product_id,
-                    'price' => $item->price,
-                    'quantity' => $item->quantity,
-                    'name' => $item->product->name,
-                ];
-            }),
+            'item_details' => [
+                [
+                    'id' => 'advance_payment_' . $order->id,
+                    'price' => $paymentAmount,
+                    'quantity' => 1,
+                    'name' => 'Advance Payment (50%) for Order #' . $order->id,
+                ]
+            ],
+            'custom_field1' => 'advance_payment', // Mark as advance payment
+            'custom_field2' => 'remaining_amount:' . ($order->amount - $paymentAmount), // Store remaining amount info
         ];
 
         // Create Midtrans transaction
@@ -100,9 +134,15 @@ class OrderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
-        //
+        $order = Order::with(['user', 'table', 'orderItems.menu', 'payment'])
+            ->where('user_id', $request->user()->id)
+            ->findOrFail($id);
+
+        return response()->json([
+            'order' => $order
+        ]);
     }
 
     /**
