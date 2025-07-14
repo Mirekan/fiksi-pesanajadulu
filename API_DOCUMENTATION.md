@@ -47,21 +47,8 @@ Register new user.
 {
     "name": "John Doe",
     "email": "user@example.com",
-    "phone": "+62812345678",
-    "password": "password123"
-}
-```
-
-**Response:**
-```json
-{
-    "token": "your-bearer-token",
-    "user": {
-        "id": 1,
-        "name": "John Doe",
-        "email": "user@example.com",
-        "phone": "+62812345678"
-    }
+    "password": "password",
+    "password_confirmation": "password"
 }
 ```
 
@@ -178,27 +165,29 @@ Get specific order details for authenticated user.
 
 ### Payments
 
-#### POST /payment/handle
+#### POST /payment/complete
 Handle remaining payment (50%) at restaurant.
 
 **Request:**
 ```json
 {
     "order_id": "9d1e3a2b-4c5d-6e7f-8a9b-0c1d2e3f4a5b",
-    "payment_method": "cash"
+    "payment_method": "cash",
+    "staff_id": 1
 }
 ```
 
 **Response:**
 ```json
 {
-    "message": "Payment completed successfully",
-    "payment": {
-        "id": 2,
-        "amount": 25000,
-        "status": "completed",
-        "type": "remaining"
-    }
+    "message": "Remaining payment completed successfully",
+    "order": {
+        "id": "9d1e3a2b-4c5d-6e7f-8a9b-0c1d2e3f4a5b",
+        "status": "completed"
+    },
+    "total_paid": 50000,
+    "advance_paid": 25000,
+    "remaining_paid": 25000
 }
 ```
 

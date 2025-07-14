@@ -87,7 +87,7 @@ class PaymentController extends Controller
             // For successful advance payment, mark as advance_paid instead of completed
             if ($orderStatus === 'paid') {
                 $orderStatus = 'advance_paid'; // Only 50% is paid online
-                $payment->markAdvancePaid();
+                $payment->update(['status' => Payment::STATUS_COMPLETED]);
             }
 
             $order->update(['status' => $orderStatus]);
@@ -98,6 +98,8 @@ class PaymentController extends Controller
             } elseif (in_array($orderStatus, ['cancelled', 'failed'])) {
                 $this->handleFailedPayment($order);
             }
+            // For 'pending' status, we don't need to do anything special -
+            // stock is already decremented and will be restored if payment eventually fails
 
             return response()->json(['message' => 'Notification processed successfully'], 200);
         } catch (\Exception $e) {
