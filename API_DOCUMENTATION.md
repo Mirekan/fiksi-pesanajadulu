@@ -47,8 +47,21 @@ Register new user.
 {
     "name": "John Doe",
     "email": "user@example.com",
-    "password": "password",
-    "password_confirmation": "password"
+    "phone": "+62812345678",
+    "password": "password123"
+}
+```
+
+**Response:**
+```json
+{
+    "token": "your-bearer-token",
+    "user": {
+        "id": 1,
+        "name": "John Doe",
+        "email": "user@example.com",
+        "phone": "+62812345678"
+    }
 }
 ```
 
